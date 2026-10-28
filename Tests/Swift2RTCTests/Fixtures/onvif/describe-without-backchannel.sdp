@@ -1,0 +1,20 @@
+v=0
+o=- 1109162014219182 1109162014219192 IN IP4 x.y.z.w
+s=Media Presentation
+e=NONE
+b=AS:5050
+t=0 0
+a=control:rtsp://192.168.1.30:554/Streaming/Channels/101/
+m=video 0 RTP/AVP 96
+c=IN IP4 0.0.0.0
+b=AS:5000
+a=recvonly
+a=x-dimensions:1920,1080
+a=control:rtsp://192.168.1.30:554/Streaming/Channels/101/trackID=1
+a=rtpmap:96 H264/90000
+m=audio 0 RTP/AVP 0
+c=IN IP4 0.0.0.0
+b=AS:50
+a=recvonly
+a=control:rtsp://192.168.1.30:554/Streaming/Channels/101/trackID=2
+a=rtpmap:0 PCMU/8000

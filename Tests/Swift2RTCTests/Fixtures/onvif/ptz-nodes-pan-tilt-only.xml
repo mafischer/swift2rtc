@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:tt="http://www.onvif.org/ver10/schema" xmlns:tptz="http://www.onvif.org/ver20/ptz/wsdl">
+<env:Body>
+<tptz:GetNodesResponse>
+<tptz:PTZNode token="000">
+<tt:Name>PTZ</tt:Name>
+<tt:SupportedPTZSpaces>
+<tt:ContinuousPanTiltVelocitySpace><tt:URI>http://www.onvif.org/ver10/tptz/PanTiltSpaces/VelocityGenericSpace</tt:URI><tt:XRange><tt:Min>-1</tt:Min><tt:Max>1</tt:Max></tt:XRange><tt:YRange><tt:Min>-1</tt:Min><tt:Max>1</tt:Max></tt:YRange></tt:ContinuousPanTiltVelocitySpace>
+<tt:ContinuousZoomVelocitySpace><tt:URI>http://www.onvif.org/ver10/tptz/ZoomSpaces/VelocityGenericSpace</tt:URI><tt:XRange><tt:Min>0</tt:Min><tt:Max>0</tt:Max></tt:XRange></tt:ContinuousZoomVelocitySpace>
+<tt:PanTiltSpeedSpace><tt:URI>http://www.onvif.org/ver10/tptz/PanTiltSpaces/GenericSpeedSpace</tt:URI><tt:XRange><tt:Min>0</tt:Min><tt:Max>1</tt:Max></tt:XRange></tt:PanTiltSpeedSpace>
+</tt:SupportedPTZSpaces>
+<tt:MaximumNumberOfPresets>25</tt:MaximumNumberOfPresets>
+<tt:HomeSupported>false</tt:HomeSupported>
+</tptz:PTZNode>
+</tptz:GetNodesResponse>
+</env:Body>
+</env:Envelope>

@@ -1,0 +1,1 @@
+Digest realm="Login to AMC0000000000000000",qop="auth",nonce="b252aWYtZGlnZXN0OjY4MDgxOTY2NzMw", opaque="", stale="false"

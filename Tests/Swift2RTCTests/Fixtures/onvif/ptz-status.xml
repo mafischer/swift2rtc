@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://www.w3.org/2003/05/soap-envelope" xmlns:tt="http://www.onvif.org/ver10/schema" xmlns:tptz="http://www.onvif.org/ver20/ptz/wsdl">
+<SOAP-ENV:Body>
+<tptz:GetStatusResponse>
+<tptz:PTZStatus>
+<tt:Position>
+<tt:PanTilt x="0.124" y="-0.35" space="http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace"/>
+<tt:Zoom x="0.42" space="http://www.onvif.org/ver10/tptz/ZoomSpaces/PositionGenericSpace"/>
+</tt:Position>
+<tt:MoveStatus><tt:PanTilt>IDLE</tt:PanTilt><tt:Zoom>IDLE</tt:Zoom></tt:MoveStatus>
+<tt:UtcTime>2026-10-27T15:04:05Z</tt:UtcTime>
+</tptz:PTZStatus>
+</tptz:GetStatusResponse>
+</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
