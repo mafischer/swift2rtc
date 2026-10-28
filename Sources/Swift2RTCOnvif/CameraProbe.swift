@@ -118,9 +118,7 @@ public final class NetworkCameraProbe: CameraProbe {
 
     public func identify(_ address: InetAddress, camera: ProbeTarget) async -> CameraFingerprint? {
         guard allows(address) else { return nil }
-        let port = discoveryPort
-        let wait = timeout
-        let found = await Task.detached { Self.unicastDiscovery(address, port: port, timeout: wait) }.value
+        let found = await Self.unicastDiscoveryOffActor(address, port: discoveryPort, timeout: timeout)
         if let found { return found }
         guard !camera.deviceURL.isEmpty else { return nil }
         let request = LanRequest(url: RTSPURLs.withHost(camera.deviceURL, address), headers: ["Content-Type": OnvifSoap.contentType],
@@ -134,6 +132,12 @@ public final class NetworkCameraProbe: CameraProbe {
     public static func rtspPort(_ streamURI: String) -> Int { URLComponents(string: streamURI)?.port ?? 554 }
 
     /// The ProbeMatch of the device at `address` (the Probe sent twice: UDP may drop one), or nil within `timeout`
+    /// [unicastDiscovery] blocks on a UDP socket: run it on the global executor, never on the caller's actor
+    @concurrent
+    static func unicastDiscoveryOffActor(_ address: InetAddress, port: UInt16, timeout: TimeInterval) async -> CameraFingerprint? {
+        unicastDiscovery(address, port: port, timeout: timeout)
+    }
+
     static func unicastDiscovery(_ address: InetAddress, port: UInt16, timeout: TimeInterval) -> CameraFingerprint? {
         let family = address.isV4 ? AF_INET : AF_INET6
         let fd = socket(family, SOCK_DGRAM, IPPROTO_UDP)
