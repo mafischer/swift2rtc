@@ -13,10 +13,11 @@ public enum HTTPDigest {
         /// `auth` when the server offered it, else nil (no qop)
         public var qop: String?
         public var opaque: String?
-        /// `MD5` or `MD5-sess`
-        public var algorithm: String
+        /// `MD5` or `MD5-sess` as the server named it; nil when it named none (MD5 is then used). Echoed in the answer only
+        /// when named: some cameras (e.g. TP-Link Tapo) refuse an answer carrying an `algorithm=MD5` they did not ask for.
+        public var algorithm: String?
 
-        public init(realm: String, nonce: String, qop: String? = nil, opaque: String? = nil, algorithm: String = "MD5") {
+        public init(realm: String, nonce: String, qop: String? = nil, opaque: String? = nil, algorithm: String? = nil) {
             self.realm = realm
             self.nonce = nonce
             self.qop = qop
@@ -34,7 +35,7 @@ public enum HTTPDigest {
         guard let realm = params["realm"], let nonce = params["nonce"] else { return nil }
         // "auth" when offered (possibly next to auth-int, which these clients do not need)
         let qop = params["qop"].flatMap { options in options.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.contains("auth") ? "auth" : nil }
-        return Challenge(realm: realm, nonce: nonce, qop: qop, opaque: params["opaque"], algorithm: params["algorithm"] ?? "MD5")
+        return Challenge(realm: realm, nonce: nonce, qop: qop, opaque: params["opaque"], algorithm: params["algorithm"])
     }
 
     /// Comma-separated `name=value` / `name="quoted, value"` pairs, names lower-cased
@@ -70,7 +71,7 @@ public enum HTTPDigest {
     public static func authorization(_ challenge: Challenge, credentials: OnvifCredentials, method: String, uri: String, cnonce: String, nonceCount: Int = 1) -> String {
         let nc = String(format: "%08x", nonceCount)
         var ha1 = md5("\(credentials.username):\(challenge.realm):\(credentials.password)")
-        if challenge.algorithm.caseInsensitiveCompare("MD5-sess") == .orderedSame { ha1 = md5("\(ha1):\(challenge.nonce):\(cnonce)") }
+        if challenge.algorithm?.caseInsensitiveCompare("MD5-sess") == .orderedSame { ha1 = md5("\(ha1):\(challenge.nonce):\(cnonce)") }
         let ha2 = md5("\(method):\(uri)")
         let response = challenge.qop.map { md5("\(ha1):\(challenge.nonce):\(nc):\(cnonce):\($0):\(ha2)") } ?? md5("\(ha1):\(challenge.nonce):\(ha2)")
         var header = "Digest username=\"\(quote(credentials.username))\", realm=\"\(quote(challenge.realm))\", nonce=\"\(quote(challenge.nonce))\""
@@ -78,7 +79,7 @@ public enum HTTPDigest {
         if let qop = challenge.qop { header += ", qop=\(qop), nc=\(nc), cnonce=\"\(cnonce)\"" }
         header += ", response=\"\(response)\""
         if let opaque = challenge.opaque { header += ", opaque=\"\(quote(opaque))\"" }
-        header += ", algorithm=\(challenge.algorithm)"
+        if let algorithm = challenge.algorithm { header += ", algorithm=\(algorithm)" }
         return header
     }
 

@@ -98,7 +98,7 @@ struct HTTPDigestTests {
 
     @Test func theAmcrestCamerasChallengeIsRead() throws {
         let challenge = try #require(HTTPDigest.parseChallenge(try OnvifFixtures.read("amcrest-digest-challenge.txt").trimmingCharacters(in: .whitespacesAndNewlines)))
-        #expect(challenge == HTTPDigest.Challenge(realm: "Login to AMC0000000000000000", nonce: "b252aWYtZGlnZXN0OjY4MDgxOTY2NzMw", qop: "auth", opaque: "", algorithm: "MD5"))
+        #expect(challenge == HTTPDigest.Challenge(realm: "Login to AMC0000000000000000", nonce: "b252aWYtZGlnZXN0OjY4MDgxOTY2NzMw", qop: "auth", opaque: "", algorithm: nil))
         let header = HTTPDigest.authorization(challenge, credentials: OnvifCredentials(username: "admin", password: "pw"), method: "POST", uri: "/onvif/device_service",
                                               cnonce: "abc", nonceCount: 2)
         let ha1 = HTTPDigest.md5("admin:Login to AMC0000000000000000:pw")
@@ -113,6 +113,12 @@ struct HTTPDigestTests {
         let header = HTTPDigest.authorization(plain, credentials: OnvifCredentials(username: "u", password: "p"), method: "POST", uri: "/x", cnonce: "c")
         #expect(header.contains("response=\"\(HTTPDigest.md5("\(HTTPDigest.md5("u:r:p")):n:\(HTTPDigest.md5("POST:/x"))"))\""))
         #expect(!header.contains("qop="))
+        // A Tapo C210 (firmware 1.2.7) refuses the right response when the header adds an unasked algorithm=MD5
+        let tapo = try #require(HTTPDigest.parseChallenge(#"Digest realm="TP-LINK IP-Camera", nonce="fb93f59432fa328235d29ba4a23cb7fa""#))
+        #expect(tapo.algorithm == nil)
+        #expect(!HTTPDigest.authorization(tapo, credentials: OnvifCredentials(username: "u", password: "p"), method: "DESCRIBE", uri: "rtsp://cam/stream1", cnonce: "c").contains("algorithm"))
+        let named = try #require(HTTPDigest.parseChallenge(#"Digest realm="r", nonce="n", algorithm="MD5""#))
+        #expect(HTTPDigest.authorization(named, credentials: OnvifCredentials(username: "u", password: "p"), method: "GET", uri: "/", cnonce: "c").hasSuffix(", algorithm=MD5"))
         let session = try #require(HTTPDigest.parseChallenge(#"Digest realm="r", nonce="n", qop="auth", algorithm=MD5-sess"#))
         let sessionHeader = HTTPDigest.authorization(session, credentials: OnvifCredentials(username: "u", password: "p"), method: "POST", uri: "/x", cnonce: "c")
         let ha1 = HTTPDigest.md5("\(HTTPDigest.md5("u:r:p")):n:c")
